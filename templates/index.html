@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iran Airspace Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛩️ Iran Airspace Monitor</h1>
+            <p>Real-time tracking of aircraft in Iran FIR zone</p>
+        </header>
+
+        <div class="controls">
+            <button id="enable-notifications-btn">Enable Notifications</button>
+            <div class="status">
+                <span id="aircraft-count">0</span> aircraft currently tracked
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+
+            <div class="sidebar">
+                <h3>Aircraft List</h3>
+                <div class="aircraft-list-container">
+                    <ul id="aircraft-list">
+                        <li>Loading aircraft data...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Data source: <a href="https://opensky-network.org" target="_blank">OpenSky Network</a></p>
+            <p>Updated every 15 seconds | Notifications for new entries</p>
+        </footer>
+    </div>
+
+    <script>
+        const VAPID_PUBLIC_KEY = "{{ vapid_public_key }}";
+    </script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html> 
