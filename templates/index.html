@@ -8,9 +8,23 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
+    <!-- Google AdSense Consent Management -->
+    <script async src="https://fundingchoicesmessages.google.com/i/pub-7341529817476662?ers=1" nonce="random-nonce"></script>
+    <script nonce="random-nonce">(function() {function signalGooglefcPresent() {if (!window.frames['googlefcPresent']) {if (document.body) {const iframe = document.createElement('iframe'); iframe.style = 'width: 0; height: 0; border: none; z-index: -1000; left: -1000px; top: -1000px;'; iframe.style.display = 'none'; iframe.name = 'googlefcPresent'; document.body.appendChild(iframe);} else {setTimeout(signalGooglefcPresent, 0);}}}signalGooglefcPresent();})();</script>
+    
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ adsense_client_id }}"
             crossorigin="anonymous"></script>
+    
+    <!-- AdSense Auto Ads with Consent -->
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({
+            google_ad_client: "{{ adsense_client_id }}",
+            enable_page_level_ads: true,
+            tag_for_child_directed_treatment: null,
+            tag_for_under_age_of_consent: null
+        });
+    </script>
 </head>
 <body>
     <div class="container">
