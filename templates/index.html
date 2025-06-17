@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ adsense_client_id }}"
+            crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="container">
@@ -14,6 +18,16 @@
             <h1>🛩️ Iran Airspace Monitor</h1>
             <p>Real-time tracking of aircraft in Iran FIR zone</p>
         </header>
+
+        <!-- Top Banner Ad -->
+        <div class="ad-container top-ad">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="{{ adsense_client_id }}"
+                 data-ad-slot="{{ adsense_slot_top }}"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        </div>
 
         <div class="controls">
             <button id="enable-notifications-btn">Enable Notifications</button>
@@ -25,10 +39,31 @@
         <div class="content">
             <div class="map-container">
                 <div id="map"></div>
+                
+                <!-- Map Bottom Ad -->
+                <div class="ad-container map-ad">
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="{{ adsense_client_id }}"
+                         data-ad-slot="{{ adsense_slot_map }}"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                </div>
             </div>
 
             <div class="sidebar">
                 <h3>Aircraft List</h3>
+                
+                <!-- Sidebar Ad -->
+                <div class="ad-container sidebar-ad">
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="{{ adsense_client_id }}"
+                         data-ad-slot="{{ adsense_slot_sidebar }}"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                </div>
+                
                 <div class="aircraft-list-container">
                     <ul id="aircraft-list">
                         <li>Loading aircraft data...</li>
@@ -38,6 +73,16 @@
         </div>
 
         <footer>
+            <!-- Footer Ad -->
+            <div class="ad-container footer-ad">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="{{ adsense_client_id }}"
+                     data-ad-slot="{{ adsense_slot_footer }}"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+            </div>
+            
             <p>Data source: <a href="https://opensky-network.org" target="_blank">OpenSky Network</a></p>
             <p>Updated every 15 seconds | Notifications for new entries</p>
         </footer>
@@ -47,5 +92,13 @@
         const VAPID_PUBLIC_KEY = "{{ vapid_public_key }}";
     </script>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
+    
+    <!-- AdSense Auto Ads -->
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
 </body>
 </html> 

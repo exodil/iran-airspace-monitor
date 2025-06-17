@@ -21,6 +21,13 @@ VAPID_PRIVATE_KEY = "SIG4rDLGpDq5k8HV6tbFkrMt8ZHnDc2RqnRA00SeEsI"
 VAPID_PUBLIC_KEY = "BPPENiv0a5qrc1XrQgvxmndHiwyRsp6_5MtfkM5MvM0c-cLo2L3g6fCpsyg1JFUMmMxRSs81XyWovdcoI6Nvwnk"
 VAPID_CLAIMS = {"sub": "mailto:manasalperen@gmail.com"}
 
+# ADSENSE CONFIGURATION
+ADSENSE_CLIENT_ID = os.environ.get('ADSENSE_CLIENT_ID', 'ca-pub-XXXXXXXXXXXXXXXX')
+ADSENSE_SLOT_TOP = os.environ.get('ADSENSE_SLOT_TOP', 'XXXXXXXXXX')
+ADSENSE_SLOT_SIDEBAR = os.environ.get('ADSENSE_SLOT_SIDEBAR', 'XXXXXXXXXX')
+ADSENSE_SLOT_MAP = os.environ.get('ADSENSE_SLOT_MAP', 'XXXXXXXXXX')
+ADSENSE_SLOT_FOOTER = os.environ.get('ADSENSE_SLOT_FOOTER', 'XXXXXXXXXX')
+
 IRAN_FIR_COORDS = [
     (46.5, 36.5), (47.2, 36.8), (47.5, 38.2), (48.5, 38.5), (49.0, 38.2), (49.8, 37.8), 
     (50.2, 37.2), (49.8, 36.8), (50.0, 36.2), (49.2, 35.2), (49.8, 34.0), (49.5, 33.2), 
@@ -144,7 +151,13 @@ def background_tracker():
 # --- WEB ROUTES ---
 @app.route('/')
 def index():
-    return render_template('index.html', vapid_public_key=VAPID_PUBLIC_KEY)
+    return render_template('index.html', 
+                         vapid_public_key=VAPID_PUBLIC_KEY,
+                         adsense_client_id=ADSENSE_CLIENT_ID,
+                         adsense_slot_top=ADSENSE_SLOT_TOP,
+                         adsense_slot_sidebar=ADSENSE_SLOT_SIDEBAR,
+                         adsense_slot_map=ADSENSE_SLOT_MAP,
+                         adsense_slot_footer=ADSENSE_SLOT_FOOTER)
 
 @app.route('/api/aircrafts')
 def get_aircrafts():
