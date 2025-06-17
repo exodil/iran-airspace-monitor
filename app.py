@@ -1,4 +1,4 @@
-# app.py (Cloud Hosting Version)
+# app.py (Multi-Platform Version)
 
 import requests
 import time
@@ -80,64 +80,65 @@ def send_notification(subscription, payload):
     except Exception as e:
         print(f"ERROR: Failed to send notification: {e}")
 
+def get_current_aircrafts():
+    """Fetch current aircraft data (for serverless compatibility)."""
+    ensure_token()
+    if not access_token:
+        return {}
+
+    try:
+        headers = {"Authorization": f"Bearer {access_token}"}
+        response = requests.get(API_URL, headers=headers, params=BBOX_COORDS, timeout=20)
+        response.raise_for_status()
+        all_states_in_bbox = response.json().get('states', [])
+        
+        current_aircraft_details = {}
+        for state in all_states_in_bbox:
+            icao_id, callsign, origin, _, _, lon, lat, _, on_ground = state[:9]
+            if lon and lat and not on_ground and IRAN_FIR_POLYGON.contains(Point(lon, lat)):
+                icao_id = icao_id.strip()
+                current_aircraft_details[icao_id] = {
+                    "icao": icao_id, 
+                    "callsign": callsign.strip() if callsign else "N/A",
+                    "origin": origin,
+                    "lat": lat, 
+                    "lon": lon, 
+                    "altitude": state[7] if state[7] else 0
+                }
+        return current_aircraft_details
+    except Exception as e:
+        print(f"ERROR: Failed to fetch aircraft data: {e}")
+        return {}
+
 def background_tracker():
     """Main function that runs in background and sends notifications."""
     seen_aircraft_icao = set()
     global tracked_aircrafts_in_zone
     
     while True:
-        ensure_token()
-        if not access_token:
-            print("ERROR: No access token, waiting 60s to retry...")
-            time.sleep(60)
-            continue
+        current_aircraft_details = get_current_aircrafts()
+        current_aircraft_icao = set(current_aircraft_details.keys())
 
-        try:
-            headers = {"Authorization": f"Bearer {access_token}"}
-            response = requests.get(API_URL, headers=headers, params=BBOX_COORDS, timeout=20)
-            response.raise_for_status()
-            all_states_in_bbox = response.json().get('states', [])
-            
-            current_aircraft_icao = set()
-            current_aircraft_details = {}
-            for state in all_states_in_bbox:
-                icao_id, callsign, origin, _, _, lon, lat, _, on_ground = state[:9]
-                if lon and lat and not on_ground and IRAN_FIR_POLYGON.contains(Point(lon, lat)):
-                    icao_id = icao_id.strip()
-                    current_aircraft_icao.add(icao_id)
-                    current_aircraft_details[icao_id] = {
-                        "icao": icao_id, 
-                        "callsign": callsign.strip() if callsign else "N/A",
-                        "origin": origin,
-                        "lat": lat, 
-                        "lon": lon, 
-                        "altitude": state[7] if state[7] else 0
-                    }
+        # --- NOTIFICATION SENDING LOGIC ---
+        newly_entered_aircraft = current_aircraft_icao - seen_aircraft_icao
+        if newly_entered_aircraft:
+            print(f"\n!!! {len(newly_entered_aircraft)} NEW AIRCRAFT DETECTED. SENDING NOTIFICATIONS. !!!")
+            for icao in newly_entered_aircraft:
+                details = current_aircraft_details[icao]
+                notification_payload = {
+                    "title": "Iran Airspace Alert",
+                    "body": f"Aircraft {details['callsign']} ({details['icao']}) has entered the FIR."
+                }
+                with data_lock:
+                    for sub in push_subscriptions:
+                        send_notification(sub, notification_payload)
+        # ------------------------------------
 
-            # --- NOTIFICATION SENDING LOGIC ---
-            newly_entered_aircraft = current_aircraft_icao - seen_aircraft_icao
-            if newly_entered_aircraft:
-                print(f"\n!!! {len(newly_entered_aircraft)} NEW AIRCRAFT DETECTED. SENDING NOTIFICATIONS. !!!")
-                for icao in newly_entered_aircraft:
-                    details = current_aircraft_details[icao]
-                    notification_payload = {
-                        "title": "Iran Airspace Alert",
-                        "body": f"Aircraft {details['callsign']} ({details['icao']}) has entered the FIR."
-                    }
-                    with data_lock:
-                        for sub in push_subscriptions:
-                            send_notification(sub, notification_payload)
-            # ------------------------------------
-
-            seen_aircraft_icao = current_aircraft_icao
-            with data_lock:
-                tracked_aircrafts_in_zone = current_aircraft_details
-            
-            print(f"INFO: Tracking {len(tracked_aircrafts_in_zone)} aircrafts. {len(push_subscriptions)} subscribers.")
-
-        except Exception as e:
-            print(f"ERROR in background thread: {e}")
-
+        seen_aircraft_icao = current_aircraft_icao
+        with data_lock:
+            tracked_aircrafts_in_zone = current_aircraft_details
+        
+        print(f"INFO: Tracking {len(tracked_aircrafts_in_zone)} aircrafts. {len(push_subscriptions)} subscribers.")
         time.sleep(60)
 
 # --- WEB ROUTES ---
@@ -147,8 +148,13 @@ def index():
 
 @app.route('/api/aircrafts')
 def get_aircrafts():
-    with data_lock:
-        return jsonify(list(tracked_aircrafts_in_zone.values()))
+    # For serverless compatibility, fetch fresh data on each request
+    if os.environ.get('VERCEL'):
+        current_aircrafts = get_current_aircrafts()
+        return jsonify(list(current_aircrafts.values()))
+    else:
+        with data_lock:
+            return jsonify(list(tracked_aircrafts_in_zone.values()))
 
 @app.route('/api/subscribe', methods=['POST'])
 def subscribe():
@@ -165,12 +171,17 @@ def service_worker():
     """Serve service worker file."""
     return send_from_directory('.', 'sw.js')
 
-# Cloud hosting compatible configuration
+# Multi-platform compatibility
 if __name__ == "__main__":
-    # Start background tracker thread
-    tracker_thread = threading.Thread(target=background_tracker, daemon=True)
-    tracker_thread.start()
+    # Start background tracker thread (for non-serverless environments)
+    if not os.environ.get('VERCEL'):
+        tracker_thread = threading.Thread(target=background_tracker, daemon=True)
+        tracker_thread.start()
     
-    # Use PORT environment variable for cloud hosting (Railway, Render, etc.)
+    # Use PORT environment variable for cloud hosting
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port) 
+    app.run(host='0.0.0.0', port=port)
+
+# Vercel serverless handler
+def handler(request):
+    return app(request.environ, lambda status, headers: None) 
