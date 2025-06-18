@@ -7,7 +7,7 @@ Write-Host "Iran Airspace Monitor Service Kuruluyor..." -ForegroundColor Green
 Set-Location C:\iran-airspace-monitor
 
 # 2. Environment variables ayarla
-$env:ADSENSE_CLIENT_ID="ca-pub-7341529817476662"
+$env:ADSENSE_CLIENT_ID="ca-pub-5789357886060337"
 $env:FLASK_ENV="production"
 
 # 3. Mevcut python process'leri durdur
