@@ -177,8 +177,22 @@ document.addEventListener('DOMContentLoaded', function() {
         weight: 2                // Border thickness
     }).addTo(map);
 
+    // --- Mobile zoom adjustment ---
+    if (window.innerWidth <= 768) {
+        map.fitBounds(iranFirPolygon.getBounds(), {padding: [20,20]});
+    }
+
     // Add popup
     iranFirPolygon.bindPopup('<b>Iran FIR (Reduced)</b><br>Notifications will be sent for aircraft entering this zone.');
+
+    // --- Toggle aircraft list on mobile ---
+    const toggleBtn = document.getElementById('toggle-list-btn');
+    const sidebarEl = document.querySelector('.sidebar');
+    if (toggleBtn && sidebarEl) {
+        toggleBtn.addEventListener('click', () => {
+            sidebarEl.classList.toggle('open');
+        });
+    }
 
     let aircraftMarkers = {}; // Store aircraft icons
 
